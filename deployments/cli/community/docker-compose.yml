@@ -70,7 +70,7 @@ x-app-env: &app-env
 
 services:
   web:
-    image: makeplane/plane-frontend:${APP_RELEASE:-stable}
+    image: ghcr.io/deva-dev-ct/plane-frontend:${APP_RELEASE:-stable}
     deploy:
       replicas: ${WEB_REPLICAS:-1}
       restart_policy:
@@ -80,7 +80,7 @@ services:
       - worker
 
   space:
-    image: makeplane/plane-space:${APP_RELEASE:-stable}
+    image: ghcr.io/deva-dev-ct/plane-space:${APP_RELEASE:-stable}
     deploy:
       replicas: ${SPACE_REPLICAS:-1}
       restart_policy:
@@ -91,7 +91,7 @@ services:
       - web
 
   admin:
-    image: makeplane/plane-admin:${APP_RELEASE:-stable}
+    image: ghcr.io/deva-dev-ct/plane-admin:${APP_RELEASE:-stable}
     deploy:
       replicas: ${ADMIN_REPLICAS:-1}
       restart_policy:
@@ -102,7 +102,7 @@ services:
 
   live:
     stop_grace_period: 30s
-    image: makeplane/plane-live:${APP_RELEASE:-stable}
+    image: ghcr.io/deva-dev-ct/plane-live:${APP_RELEASE:-stable}
     environment:
       <<: [*live-env, *redis-env]
     deploy:
@@ -114,7 +114,7 @@ services:
       - web
 
   api:
-    image: makeplane/plane-backend:${APP_RELEASE:-stable}
+    image: ghcr.io/deva-dev-ct/plane-backend:${APP_RELEASE:-stable}
     command: ./bin/docker-entrypoint-api.sh
     deploy:
       replicas: ${API_REPLICAS:-1}
@@ -130,7 +130,7 @@ services:
       - plane-mq
 
   worker:
-    image: makeplane/plane-backend:${APP_RELEASE:-stable}
+    image: ghcr.io/deva-dev-ct/plane-backend:${APP_RELEASE:-stable}
     command: ./bin/docker-entrypoint-worker.sh
     deploy:
       replicas: ${WORKER_REPLICAS:-1}
@@ -147,7 +147,7 @@ services:
       - plane-mq
 
   beat-worker:
-    image: makeplane/plane-backend:${APP_RELEASE:-stable}
+    image: ghcr.io/deva-dev-ct/plane-backend:${APP_RELEASE:-stable}
     command: ./bin/docker-entrypoint-beat.sh
     deploy:
       replicas: ${BEAT_WORKER_REPLICAS:-1}
@@ -164,7 +164,7 @@ services:
       - plane-mq
 
   migrator:
-    image: makeplane/plane-backend:${APP_RELEASE:-stable}
+    image: ghcr.io/deva-dev-ct/plane-backend:${APP_RELEASE:-stable}
     command: ./bin/docker-entrypoint-migrator.sh
     deploy:
       replicas: 1
@@ -226,7 +226,7 @@ services:
 
   # Comment this if you already have a reverse proxy running
   proxy:
-    image: makeplane/plane-proxy:${APP_RELEASE:-stable}
+    image: ghcr.io/deva-dev-ct/plane-proxy:${APP_RELEASE:-stable}
     deploy:
       replicas: 1
       restart_policy:
