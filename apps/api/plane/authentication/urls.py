@@ -18,6 +18,8 @@ from .views import (
     GitHubOauthInitiateEndpoint,
     GoogleCallbackEndpoint,
     GoogleOauthInitiateEndpoint,
+    OpenIDConnectCallbackEndpoint,
+    OpenIDConnectOauthInitiateEndpoint,
     MagicGenerateEndpoint,
     MagicSignInEndpoint,
     MagicSignUpEndpoint,
@@ -34,6 +36,8 @@ from .views import (
     GitHubOauthInitiateSpaceEndpoint,
     GoogleCallbackSpaceEndpoint,
     GoogleOauthInitiateSpaceEndpoint,
+    OpenIDConnectCallbackSpaceEndpoint,
+    OpenIDConnectOauthInitiateSpaceEndpoint,
     MagicGenerateSpaceEndpoint,
     MagicSignInSpaceEndpoint,
     MagicSignUpSpaceEndpoint,
@@ -149,5 +153,18 @@ urlpatterns = [
         "spaces/gitea/callback/",
         GiteaCallbackSpaceEndpoint.as_view(),
         name="space-gitea-callback",
+    ),
+    ## OpenID Connect
+    path("oidc/", OpenIDConnectOauthInitiateEndpoint.as_view(), name="oidc-initiate"),
+    path("oidc/callback/", OpenIDConnectCallbackEndpoint.as_view(), name="oidc-callback"),
+    path(
+        "spaces/oidc/",
+        OpenIDConnectOauthInitiateSpaceEndpoint.as_view(),
+        name="space-oidc-initiate",
+    ),
+    path(
+        "spaces/oidc/callback/",
+        OpenIDConnectCallbackSpaceEndpoint.as_view(),
+        name="space-oidc-callback",
     ),
 ]
