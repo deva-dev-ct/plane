@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { observer } from "mobx-react";
 import useSWR from "swr";
-import { setPromiseToast } from "@plane/propel/toast";
-import { Loader, ToggleSwitch } from "@plane/ui";
+import { Switch } from "@makeplane/propel/components/switch";
+import { Skeleton } from "@plane/blocks/skeleton";
+import { setPromiseToast } from "@plane/blocks/toast";
 // assets
 import OIDCLogo from "@/app/assets/logos/oidc-logo.svg?url";
 // components
@@ -15,7 +16,7 @@ import type { Route } from "./+types/page";
 // local
 import { InstanceOIDCConfigForm } from "./form";
 
-const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticationPage(_props: Route.ComponentProps) {
+const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticationPage() {
   // store
   const { fetchInstanceConfigurations, formattedConfig, updateInstanceConfigurations } = useInstance();
   // state
@@ -47,9 +48,7 @@ const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticat
     });
 
     await updateConfigPromise
-      .then(() => {
-        setIsSubmitting(false);
-      })
+      .then(() => setIsSubmitting(false))
       .catch((err) => {
         console.error(err);
         setIsSubmitting(false);
@@ -64,14 +63,11 @@ const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticat
           description="Allow members to login or sign up to Plane using OpenID Connect (SSO)."
           icon={<img src={OIDCLogo} height={24} width={24} alt="OIDC Logo" />}
           config={
-            <ToggleSwitch
-              value={Boolean(parseInt(enableOIDCConfig))}
-              onChange={() => {
-                if (Boolean(parseInt(enableOIDCConfig)) === true) {
-                  updateConfig("IS_OIDC_ENABLED", "0");
-                } else {
-                  updateConfig("IS_OIDC_ENABLED", "1");
-                }
+            <Switch
+              aria-label="Enable OIDC authentication"
+              checked={Boolean(parseInt(enableOIDCConfig))}
+              onCheckedChange={() => {
+                updateConfig("IS_OIDC_ENABLED", parseInt(enableOIDCConfig) ? "0" : "1");
               }}
               size="sm"
               disabled={isSubmitting || !formattedConfig}
@@ -85,13 +81,13 @@ const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticat
       {formattedConfig ? (
         <InstanceOIDCConfigForm config={formattedConfig} />
       ) : (
-        <Loader className="space-y-8">
-          <Loader.Item height="50px" width="25%" />
-          <Loader.Item height="50px" />
-          <Loader.Item height="50px" />
-          <Loader.Item height="50px" />
-          <Loader.Item height="50px" width="50%" />
-        </Loader>
+        <Skeleton className="space-y-8">
+          <Skeleton.Item height="50px" width="25%" />
+          <Skeleton.Item height="50px" />
+          <Skeleton.Item height="50px" />
+          <Skeleton.Item height="50px" />
+          <Skeleton.Item height="50px" width="50%" />
+        </Skeleton>
       )}
     </PageWrapper>
   );

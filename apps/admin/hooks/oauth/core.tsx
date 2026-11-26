@@ -97,5 +97,6 @@ export const getCoreAuthenticationModesMap: (
     description: "Allow members to log in or sign up to Plane using OpenID Connect (SSO).",
     icon: <img src={oidcLogo} height={20} width={20} alt="OIDC Logo" />,
     config: <OIDCConfiguration disabled={disabled} updateConfig={updateConfig} />,
+    enabledConfigKey: "IS_OIDC_ENABLED",
   },
 });

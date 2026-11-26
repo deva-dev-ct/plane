@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 // plane internal packages
 import { API_BASE_URL } from "@plane/constants";
-import { Button, getButtonStyling } from "@plane/propel/button";
-import { TOAST_TYPE, setToast, setPromiseToast } from "@plane/propel/toast";
+import { Button } from "@makeplane/propel/components/button";
+import { Switch } from "@makeplane/propel/components/switch";
+import { setToast, setPromiseToast } from "@plane/blocks/toast";
 import type {
   IFormattedInstanceConfiguration,
   TInstanceOIDCAuthenticationConfigurationKeys,
   TInstanceConfigurationKeys,
 } from "@plane/types";
-import { ToggleSwitch } from "@plane/ui";
 // components
 import { CodeBlock } from "@/components/common/code-block";
 import { ConfirmDiscardModal } from "@/components/common/confirm-discard-modal";
@@ -74,9 +74,7 @@ export function InstanceOIDCConfigForm(props: Props) {
     });
 
     await updateConfigPromise
-      .then(() => {
-        setIsSubmittingAuto(false);
-      })
+      .then(() => setIsSubmittingAuto(false))
       .catch((err) => {
         console.error(err);
         setIsSubmittingAuto(false);
@@ -85,7 +83,7 @@ export function InstanceOIDCConfigForm(props: Props) {
 
   const originURL = !isEmpty(API_BASE_URL) ? API_BASE_URL : typeof window !== "undefined" ? window.location.origin : "";
 
-  const OIDC_FORM_FIELDS: TControllerInputFormField[] = [
+  const OIDC_FORM_FIELDS: TControllerInputFormField<OIDCConfigFormValues>[] = [
     {
       key: "OIDC_URL_AUTHORIZATION",
       type: "text",
@@ -176,7 +174,7 @@ export function InstanceOIDCConfigForm(props: Props) {
     try {
       const response = await updateInstanceConfigurations(payload);
       setToast({
-        type: TOAST_TYPE.SUCCESS,
+        type: "success",
         title: "Done!",
         message: "Your OpenID Connect authentication is configured. You should test it now.",
       });
@@ -210,8 +208,8 @@ export function InstanceOIDCConfigForm(props: Props) {
         handleClose={() => setIsDiscardChangesModalOpen(false)}
       />
       <div className="flex flex-col gap-8">
-        <div className="grid grid-cols-2 gap-x-12 gap-y-8 w-full">
-          <div className="flex flex-col gap-y-4 col-span-2 md:col-span-1 pt-1">
+        <div className="grid w-full grid-cols-2 gap-x-12 gap-y-8">
+          <div className="col-span-2 flex flex-col gap-y-4 pt-1 md:col-span-1">
             <div className="pt-2.5 text-18 font-medium">OIDC Provider details for Plane</div>
             {OIDC_FORM_FIELDS.map((field) => (
               <ControllerInput
@@ -230,21 +228,26 @@ export function InstanceOIDCConfigForm(props: Props) {
               <div className="flex items-center gap-4">
                 <Button
                   variant="primary"
-                  size="lg"
+                  size="md"
+                  stretch="auto"
                   onClick={(e) => void handleSubmit(onSubmit)(e)}
                   loading={isSubmitting}
                   disabled={!isDirty}
-                >
-                  {isSubmitting ? "Saving" : "Save changes"}
-                </Button>
-                <Link href="/authentication" className={getButtonStyling("secondary", "lg")} onClick={handleGoBack}>
-                  Go back
-                </Link>
+                  label={isSubmitting ? "Saving" : "Save changes"}
+                />
+                <Button
+                  variant="secondary"
+                  size="md"
+                  stretch="auto"
+                  nativeButton={false}
+                  render={<Link href="/authentication" onClick={handleGoBack} />}
+                  label="Go back"
+                />
               </div>
             </div>
           </div>
           <div className="col-span-2 md:col-span-1">
-            <div className="flex flex-col gap-y-4 px-6 pt-1.5 pb-4 bg-layer-3 rounded-lg">
+            <div className="flex flex-col gap-y-4 rounded-lg bg-layer-3 px-6 pt-1.5 pb-4">
               <div className="pt-2 text-18 font-medium">Plane-provided details for OpenID Connect</div>
               {OIDC_SERVICE_FIELD.map((field) => (
                 <CopyField key={field.key} label={field.label} url={field.url} description={field.description} />
@@ -256,11 +259,11 @@ export function InstanceOIDCConfigForm(props: Props) {
                     Automatically redirect users to the OIDC provider. Only enable after testing!
                   </div>
                 </div>
-                <ToggleSwitch
-                  value={Boolean(parseInt(automaticOIDCRedirect))}
-                  onChange={() => {
-                    const newValue = Boolean(parseInt(automaticOIDCRedirect)) === true ? "0" : "1";
-                    updateConfig("IS_OIDC_AUTO", newValue);
+                <Switch
+                  aria-label="Automatic OIDC redirect"
+                  checked={Boolean(parseInt(automaticOIDCRedirect))}
+                  onCheckedChange={() => {
+                    updateConfig("IS_OIDC_AUTO", Boolean(parseInt(automaticOIDCRedirect)) ? "0" : "1");
                   }}
                   size="sm"
                   disabled={isSubmittingAuto}
