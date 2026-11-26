@@ -20,11 +20,6 @@ on:
         type: boolean
         default: false
         required: true
-      arm64:
-        description: "Build for ARM64 architecture"
-        required: false
-        default: false
-        type: boolean
       aio_build:
         description: "Build for AIO docker image"
         required: false
@@ -41,7 +36,6 @@ concurrency:
 
 env:
   TARGET_BRANCH: ${{ github.ref_name }}
-  ARM64_BUILD: ${{ github.event.inputs.arm64 }}
   BUILD_TYPE: ${{ github.event.inputs.build_type }}
   RELEASE_VERSION: ${{ github.event.inputs.releaseVersion }}
   IS_PRERELEASE: ${{ github.event.inputs.isPrerelease }}
@@ -75,11 +69,8 @@ jobs:
       - id: set_env_variables
         name: Set Environment Variables
         run: |
-          if [ "${{ env.ARM64_BUILD }}" == "true" ]; then
-            echo "BUILDX_PLATFORMS=linux/amd64,linux/arm64" >> $GITHUB_OUTPUT
-          else
-            echo "BUILDX_PLATFORMS=linux/amd64" >> $GITHUB_OUTPUT
-          fi
+          # Production server is arm64 (Hetzner CAX); images build on native ARM runners.
+          echo "BUILDX_PLATFORMS=linux/arm64" >> $GITHUB_OUTPUT
           BR_NAME=$( echo "${{ env.TARGET_BRANCH }}" |sed 's/[^a-zA-Z0-9.-]//g')
           echo "TARGET_BRANCH=$BR_NAME" >> $GITHUB_OUTPUT
 
@@ -131,7 +122,7 @@ jobs:
 
   branch_build_push_admin:
     name: Build-Push Admin Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04-arm
     needs: [branch_build_setup]
     permissions:
       contents: read
@@ -174,7 +165,7 @@ jobs:
 
   branch_build_push_web:
     name: Build-Push Web Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04-arm
     needs: [branch_build_setup]
     permissions:
       contents: read
@@ -217,7 +208,7 @@ jobs:
 
   branch_build_push_space:
     name: Build-Push Space Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04-arm
     needs: [branch_build_setup]
     permissions:
       contents: read
@@ -260,7 +251,7 @@ jobs:
 
   branch_build_push_live:
     name: Build-Push Live Collaboration Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04-arm
     needs: [branch_build_setup]
     permissions:
       contents: read
@@ -303,7 +294,7 @@ jobs:
 
   branch_build_push_api:
     name: Build-Push API Server Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04-arm
     needs: [branch_build_setup]
     permissions:
       contents: read
@@ -346,7 +337,7 @@ jobs:
 
   branch_build_push_proxy:
     name: Build-Push Proxy Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04-arm
     needs: [branch_build_setup]
     permissions:
       contents: read
@@ -390,7 +381,7 @@ jobs:
   branch_build_push_aio:
     if: ${{ needs.branch_build_setup.outputs.aio_build == 'true' }}
     name: Build-Push AIO Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04-arm
     needs:
       - branch_build_setup
       - branch_build_push_admin
