@@ -1,6 +1,6 @@
 # Python imports
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import urlencode
 from base64 import b64encode
 
@@ -115,10 +115,7 @@ class OpenIDConnectProvider(OauthAdapter):
                 "access_token": token_response.get("access_token"),
                 "refresh_token": token_response.get("refresh_token", None),
                 "access_token_expired_at": (
-                    datetime.fromtimestamp(
-                        token_response.get("expires_in"),
-                        tz=pytz.utc,
-                    )
+                    datetime.now(tz=pytz.utc) + timedelta(seconds=token_response.get("expires_in"))
                     if token_response.get("expires_in")
                     else None
                 ),
@@ -137,6 +134,12 @@ class OpenIDConnectProvider(OauthAdapter):
     def set_user_data(self):
         user_info_response = self.get_user_response()
         email = user_info_response.get("email")
+        # CT's userinfo omits email_verified, so only reject an explicit false (GHSA-7j95-vh8g-f365).
+        if user_info_response.get("email_verified") in (False, "false"):
+            raise AuthenticationException(
+                error_code=AUTHENTICATION_ERROR_CODES["OAUTH_PROVIDER_UNVERIFIED_EMAIL"],
+                error_message="OAUTH_PROVIDER_UNVERIFIED_EMAIL",
+            )
         super().set_user_data(
             {
                 "email": email,
